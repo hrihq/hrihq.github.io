@@ -23,13 +23,14 @@ const STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5 9.5 
 const FORK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="20" r="2.4"/><path d="M6 8.4v3.2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8.4M12 13.6V18"/></svg>';
 
 function repoDesc(r){
-  if (r.desc && r.desc.trim()) return r.desc;
-  const d = {
+  const d = (r.description && r.description.trim()) || (r.desc && r.desc.trim());
+  if (d) return d;
+  const fallback = {
     'hrihq':'Repo profil GitHub — berkas README profil.',
     'my-absen':"My Absen — presensi wajah offline. ML Kit face detection dengan React Native/Expo.",
     'rasa-nusantara':'Proyek web resep dan kuliner Nusantara.'
   };
-  return d[r.name] || 'Proyek publik di GitHub.';
+  return fallback[r.name] || 'Proyek publik di GitHub.';
 }
 function toRepo(r){
   return {
@@ -54,12 +55,10 @@ function loadRepos(){
     .then(res => { clearTimeout(t); return res.ok ? res.json() : null; })
     .then(d => {
       if (!Array.isArray(d) || !d.length) return;
-      const byName = new Map(FALLBACK_REPOS.map(r => [r.name, r.desc || '']));
+      const byName = new Map(FALLBACK_REPOS.map(r => [r.name, r]));
       REPOS = d.map(r => {
-        if (!r.description || !r.description.trim()){
-          const fb = byName.get(r.name);
-          if (fb) r.description = fb;
-        }
+        const fb = byName.get(r.name);
+        if (fb && (!r.description || !r.description.trim())) r.description = fb.desc;
         return toRepo(r);
       });
     })
