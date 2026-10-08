@@ -1,14 +1,13 @@
 'use strict';
 /* ===================== REPO DATA ===================== */
 const CAT_RULES = [
-  ['Kernel',  (n,d) => /kernel|anykernel|sm6150|openela|positron|_4\.14/i.test(n+' '+d)],
-  ['Android', (n,d) => /kasir|absen|presensi|android|expo|ml kit|compose/i.test(n+' '+d)],
+  ['Kernel',  n => /kernel|anykernel|sm6150|positron/i.test(n)],
+  ['Android', n => /^my-absen$|kasir|absen|presensi|android/i.test(n)],
   ['Web',     () => true]
 ];
 function categorize(r){
   const n = r.name || '';
-  const d = (r.description || r.desc || '');
-  for (const [cat, test] of CAT_RULES) if (test(n, d)) return cat;
+  for (const [cat, test] of CAT_RULES) if (test(n)) return cat;
   return 'Web';
 }
 const LANG_COLOR = {
